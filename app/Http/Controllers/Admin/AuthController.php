@@ -25,4 +25,11 @@ class AuthController extends Controller
             'email' => ['The Provided Credentials are invalid']
         ]);
     }
+
+   final public function logout()
+    {
+        info('dsfasdf');
+        auth()->user()->tokens()->delete();
+        return response()->json(['message' => 'Logged Out Successfully']);
+    }
 }
