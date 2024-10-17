@@ -28,7 +28,6 @@ class AuthController extends Controller
 
    final public function logout()
     {
-        info('dsfasdf');
         auth()->user()->tokens()->delete();
         return response()->json(['message' => 'Logged Out Successfully']);
     }
