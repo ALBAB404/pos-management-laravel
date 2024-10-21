@@ -37,18 +37,18 @@ class CategoryController extends BaseController
         try {
             DB::beginTransaction();
 
-            $category = $request->except('photo');
+            $category            = $request->except('photo');
             $category['user_id'] = auth()->id();
-            $category['slug'] = Str::slug($request->input('slug'));
+            $category['slug']    = Str::slug($request->input('slug'));
             if ($request->has('photo')) {
-                $file             = $request->input('photo');
-                $height           = 450;
-                $width            = 450;
-                $height_thumb     = 150;
-                $width_thumb      = 150;
-                $name             = Str::slug($request->input('slug'));
-                $path = Category::Image_UPLOAD_PATH;
-                $path_thumb = Category::THUMB_Image_UPLOAD_PATH;
+                $file              = $request->input('photo');
+                $height            = 450;
+                $width             = 450;
+                $height_thumb      = 150;
+                $width_thumb       = 150;
+                $name              = Str::slug($request->input('slug'));
+                $path              = Category::Image_UPLOAD_PATH;
+                $path_thumb        = Category::THUMB_Image_UPLOAD_PATH;
                 $category['photo'] = ImageUploadManager::uploadImage($name, $width, $height, $path, $file);
                 ImageUploadManager::uploadImage($name, $width_thumb, $height_thumb, $path_thumb, $file);
             }

@@ -25,7 +25,7 @@ class Category extends Model
 
     final public function getCategory()
     {
-       return self::query()->with('user:id,name')->orderBy('serial', 'asc')->get();
+       return self::query()->with('user:id,name')->orderBy('serial', 'asc')->paginate(1);
     }
 
     final public function storeCategory($input)
