@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Exception;
 use App\Models\Category;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Classes\BaseController;
 use Illuminate\Support\Facades\DB;
 use App\Manager\ImageUploadManager;
@@ -17,11 +18,10 @@ class CategoryController extends BaseController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-
-           $categories = (new Category)->getCategory();
+           $categories = (new Category)->getCategory($request->all());
             return CategoryListResource::collection($categories);
         //    return $this->sendResponse('Category list', 'success', $categories);
         } catch (Exception $exception) {
