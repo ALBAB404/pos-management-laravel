@@ -47,8 +47,8 @@ class CategoryController extends BaseController
                 $height_thumb     = 150;
                 $width_thumb      = 150;
                 $name             = Str::slug($request->input('slug'));
-                $path = 'images/uploads/category/';
-                $path_thumb = 'images/uploads/category_thumb/';
+                $path = Category::Image_UPLOAD_PATH;
+                $path_thumb = Category::THUMB_Image_UPLOAD_PATH;
                 $category['photo'] = ImageUploadManager::uploadImage($name, $width, $height, $path, $file);
                 ImageUploadManager::uploadImage($name, $width_thumb, $height_thumb, $path_thumb, $file);
             }

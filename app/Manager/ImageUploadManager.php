@@ -6,6 +6,9 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class ImageUploadManager {
+
+    public const DEFAULT_IMAGE_= 'images/default.png';
+
     final public static function uploadImage ($name, $width, $height, $path, $file)
     {
         $manager = new ImageManager(new Driver());
@@ -23,5 +26,15 @@ class ImageUploadManager {
         if ($img != '' && file_exists($path)) {
             unlink($path);
         }
+    }
+
+    final public static function prepareImageUrl ($path, $img)
+    {
+        $url = url($path.$img);
+
+        if (empty($img)) {
+            $url = url(self::DEFAULT_IMAGE_);
+        }
+        return $url;
     }
 }

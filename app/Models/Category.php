@@ -9,6 +9,9 @@ class Category extends Model
 {
     use HasFactory;
 
+    public const Image_UPLOAD_PATH       = 'images/uploads/category/';
+    public const THUMB_Image_UPLOAD_PATH = 'images/uploads/category_thumb/';
+
     protected $fillable = [
         'name',
         'slug',
@@ -22,12 +25,17 @@ class Category extends Model
 
     final public function getCategory()
     {
-       return self::query()->orderBy('serial', 'asc')->get();
+       return self::query()->with('user:id,name')->orderBy('serial', 'asc')->get();
     }
 
     final public function storeCategory($input)
     {
        return self::query()->create($input);
+    }
+
+    public function user()
+    {
+       return $this->belongsTo(User::class);
     }
 
 }
