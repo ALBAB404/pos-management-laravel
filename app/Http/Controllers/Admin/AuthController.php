@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Classes\BaseController;
 use App\Http\Requests\AuthRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
    final public function login(AuthRequest $request)
     {
@@ -18,7 +18,8 @@ class AuthController extends Controller
             $user_data['name'] = $user->name;
             $user_data['phone'] = $user->phone;
             $user_data['photo'] = $user->photo;
-            return response()->json($user_data);
+            return $this->sendResponse("Login successfully done", "success", $user_data);
+
         }
 
         throw ValidationException::withMessages([
@@ -29,6 +30,6 @@ class AuthController extends Controller
    final public function logout()
     {
         auth()->user()->tokens()->delete();
-        return response()->json(['message' => 'Logged Out Successfully']);
+        return $this->sendResponse("Logged Out Successfully", "success");
     }
 }

@@ -5,23 +5,38 @@ namespace App\Http\Controllers\Admin;
 use Exception;
 use App\Models\Category;
 use Illuminate\Support\Str;
+use App\Classes\BaseController;
+use Illuminate\Support\Facades\DB;
 use App\Manager\ImageUploadManager;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 use App\Http\Requests\CategoryRequest;
+use App\Http\Resources\CategoryListResource;
 
-class CategoryController extends Controller
+class CategoryController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        try {
+
+           $categories = (new Category)->getCategory();
+            return CategoryListResource::collection($categories);
+        //    return $this->sendResponse('Category list', 'success', $categories);
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
+
+            return $this->sendError(__("common.commonError"));
+        }
+
     }
 
     public function store(CategoryRequest $request)
     {
         try {
+            DB::beginTransaction();
+
             $category = $request->except('photo');
             $category['user_id'] = auth()->id();
             $category['slug'] = Str::slug($request->input('slug'));
@@ -39,13 +54,13 @@ class CategoryController extends Controller
             }
 
             (new Category)->storeCategory($category);
-            return response()->json(['message' => 'Category Created Successfully', 'cls' => 'success']);
-        } catch (Exception $e) {
-            // Return a JSON response with error details
-            return response()->json([
-                'message' => 'Category creation failed',
-                'error' => $e->getMessage()
-            ], 500); // 500 indicates a server-side error
+
+            DB::commit();
+            return $this->sendResponse("Category Created Successfully", "success");
+        } catch (Exception $exception) {
+            DB::rollback();
+            Log::error($exception->getMessage());
+            return $this->sendError(__("common.commonError"));
         }
     }
 

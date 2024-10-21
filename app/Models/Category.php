@@ -20,6 +20,11 @@ class Category extends Model
         'user_id',
     ];
 
+    final public function getCategory()
+    {
+       return self::query()->orderBy('serial', 'asc')->get();
+    }
+
     final public function storeCategory($input)
     {
        return self::query()->create($input);
