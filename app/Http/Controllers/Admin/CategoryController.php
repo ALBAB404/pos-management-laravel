@@ -78,6 +78,6 @@ class CategoryController extends BaseController
 
     public function destroy(string $id)
     {
-        //
+        return $id;
     }
 }
