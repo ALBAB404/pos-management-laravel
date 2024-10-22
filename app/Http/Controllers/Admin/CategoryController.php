@@ -67,7 +67,7 @@ class CategoryController extends BaseController
 
     public function show(string $id)
     {
-        //
+
     }
 
 
@@ -76,8 +76,23 @@ class CategoryController extends BaseController
         //
     }
 
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-        return $id;
+        try {
+            DB::beginTransaction();
+
+            if (!empty($category->photo)) {
+                ImageUploadManager::deletePhoto(Category::Image_UPLOAD_PATH, $category->photo);
+                ImageUploadManager::deletePhoto(Category::THUMB_Image_UPLOAD_PATH, $category->photo);
+            }
+
+            $category->delete();
+            DB::commit();
+            return $this->sendResponse("Category Deleted Successfully", "warning");
+        } catch (Exception $exception) {
+            DB::rollback();
+            Log::error($exception->getMessage());
+            return $this->sendError(__("common.commonError"));
+        }
     }
 }
