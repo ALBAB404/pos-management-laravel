@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use App\Manager\ImageUploadManager;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\CategoryRequest;
+use App\Http\Requests\CategoryUpdateRequest;
+use App\Http\Resources\CategoryEditResourse;
 use App\Http\Resources\CategoryListResource;
 
 class CategoryController extends BaseController
@@ -65,15 +67,23 @@ class CategoryController extends BaseController
     }
 
 
-    public function show(string $id)
+    final public function show(Category $category)
     {
+        try {
 
+             return new CategoryEditResourse($category);
+
+         } catch (Exception $exception) {
+             Log::error($exception->getMessage());
+
+             return $this->sendError(__("common.commonError"));
+         }
     }
 
 
-    public function update(Request $request, string $id)
+    public function update(CategoryUpdateRequest $request, Category $category)
     {
-        //
+        info($request->all());
     }
 
     public function destroy(Category $category)

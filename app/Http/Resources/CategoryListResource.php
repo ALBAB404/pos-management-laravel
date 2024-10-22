@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
-use App\Manager\ImageUploadManager;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Manager\ImageUploadManager;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CategoryListResource extends JsonResource
