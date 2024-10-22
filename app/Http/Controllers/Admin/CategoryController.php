@@ -83,7 +83,39 @@ class CategoryController extends BaseController
 
     public function update(CategoryUpdateRequest $request, Category $category)
     {
-        info($request->all());
+        try {
+            DB::beginTransaction();
+
+            $category            = $request->except('photo');
+            $category['slug']    = Str::slug($request->input('slug'));
+            if ($request->has('photo')) {
+                $file              = $request->input('photo');
+                $height            = 450;
+                $width             = 450;
+                $height_thumb      = 150;
+                $width_thumb       = 150;
+                $name              = Str::slug($request->input('slug'));
+                $path              = Category::Image_UPLOAD_PATH;
+                $path_thumb        = Category::THUMB_Image_UPLOAD_PATH;
+
+                if (!empty($category->photo)) {
+                    ImageUploadManager::deletePhoto(Category::Image_UPLOAD_PATH, $category->photo);
+                    ImageUploadManager::deletePhoto(Category::THUMB_Image_UPLOAD_PATH, $category->photo);
+                }
+
+                $category['photo'] = ImageUploadManager::uploadImage($name, $width, $height, $path, $file);
+                ImageUploadManager::uploadImage($name, $width_thumb, $height_thumb, $path_thumb, $file);
+            }
+
+            (new Category)->storeCategory($category);
+
+            DB::commit();
+            return $this->sendResponse("Category Created Successfully", "success");
+        } catch (Exception $exception) {
+            DB::rollback();
+            Log::error($exception->getMessage());
+            return $this->sendError(__("common.commonError"));
+        }
     }
 
     public function destroy(Category $category)
