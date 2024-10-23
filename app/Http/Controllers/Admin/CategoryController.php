@@ -43,16 +43,7 @@ class CategoryController extends BaseController
             $category['user_id'] = auth()->id();
             $category['slug']    = Str::slug($request->input('slug'));
             if ($request->has('photo')) {
-                $file              = $request->input('photo');
-                $height            = 450;
-                $width             = 450;
-                $height_thumb      = 150;
-                $width_thumb       = 150;
-                $name              = Str::slug($request->input('slug'));
-                $path              = Category::Image_UPLOAD_PATH;
-                $path_thumb        = Category::THUMB_Image_UPLOAD_PATH;
-                $category['photo'] = ImageUploadManager::uploadImage($name, $width, $height, $path, $file);
-                ImageUploadManager::uploadImage($name, $width_thumb, $height_thumb, $path_thumb, $file);
+               $category['photo'] = $this->processImageUpload($request->input('photo'), $category['slug']);
             }
 
             (new Category)->storeCategory($category);
@@ -81,36 +72,21 @@ class CategoryController extends BaseController
     }
 
 
-    public function update(CategoryUpdateRequest $request, Category $category)
+    final public function update(CategoryUpdateRequest $request, Category $category)
     {
         try {
             DB::beginTransaction();
 
-            $category            = $request->except('photo');
-            $category['slug']    = Str::slug($request->input('slug'));
+            $category_data            = $request->except('photo');
+            $category_data['slug']    = Str::slug($request->input('slug'));
             if ($request->has('photo')) {
-                $file              = $request->input('photo');
-                $height            = 450;
-                $width             = 450;
-                $height_thumb      = 150;
-                $width_thumb       = 150;
-                $name              = Str::slug($request->input('slug'));
-                $path              = Category::Image_UPLOAD_PATH;
-                $path_thumb        = Category::THUMB_Image_UPLOAD_PATH;
-
-                if (!empty($category->photo)) {
-                    ImageUploadManager::deletePhoto(Category::Image_UPLOAD_PATH, $category->photo);
-                    ImageUploadManager::deletePhoto(Category::THUMB_Image_UPLOAD_PATH, $category->photo);
-                }
-
-                $category['photo'] = ImageUploadManager::uploadImage($name, $width, $height, $path, $file);
-                ImageUploadManager::uploadImage($name, $width_thumb, $height_thumb, $path_thumb, $file);
+                $category_data['photo'] = $this->processImageUpload($request->input('photo'), $category_data['slug'], $category->photo);
             }
 
-            (new Category)->storeCategory($category);
+            $category->update($category_data);
 
             DB::commit();
-            return $this->sendResponse("Category Created Successfully", "success");
+            return $this->sendResponse("Category Updated Successfully", "success");
         } catch (Exception $exception) {
             DB::rollback();
             Log::error($exception->getMessage());
@@ -136,5 +112,24 @@ class CategoryController extends BaseController
             Log::error($exception->getMessage());
             return $this->sendError(__("common.commonError"));
         }
+    }
+
+    private function processImageUpload($file, $name, $exisiting_photo = null)
+    {
+        $height            = 450;
+        $width             = 450;
+        $height_thumb      = 150;
+        $width_thumb       = 150;
+        $path              = Category::Image_UPLOAD_PATH;
+        $path_thumb        = Category::THUMB_Image_UPLOAD_PATH;
+
+        if (!empty($exisiting_photo)) {
+            ImageUploadManager::deletePhoto(Category::Image_UPLOAD_PATH, $exisiting_photo);
+            ImageUploadManager::deletePhoto(Category::THUMB_Image_UPLOAD_PATH, $exisiting_photo);
+        }
+
+        $photo_name = ImageUploadManager::uploadImage($name, $width, $height, $path, $file);
+        ImageUploadManager::uploadImage($name, $width_thumb, $height_thumb, $path_thumb, $file);
+        return $photo_name;
     }
 }
