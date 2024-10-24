@@ -132,4 +132,19 @@ class CategoryController extends BaseController
         ImageUploadManager::uploadImage($name, $width_thumb, $height_thumb, $path_thumb, $file);
         return $photo_name;
     }
+
+    final public function get_category_list(Request $request)
+    {
+        try {
+
+            $categories = (new Category())->getCategoryIdAndName();
+
+            return $this->sendResponse('Category list', 'success', $categories);
+         } catch (Exception $exception) {
+             Log::error($exception->getMessage());
+
+             return $this->sendError(__("common.commonError"));
+         }
+
+    }
 }

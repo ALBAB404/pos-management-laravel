@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class SubCategory extends Model
 {
     use HasFactory;
 
-    public const Image_UPLOAD_PATH       = 'images/uploads/category/';
-    public const THUMB_Image_UPLOAD_PATH = 'images/uploads/category_thumb/';
+    public const Image_UPLOAD_PATH       = 'images/uploads/sub_category/';
+    public const THUMB_Image_UPLOAD_PATH = 'images/uploads/sub_category_thumb/';
 
     protected $fillable = [
         'name',
@@ -21,9 +21,10 @@ class Category extends Model
         'description',
         'photo',
         'user_id',
+        'category_id',
     ];
 
-    final public function getCategory($input)
+    final public function getSubCategory($input)
     {
        $per_page = $input['per_page'] ?? 10;
        $query = self::query();
@@ -34,10 +35,10 @@ class Category extends Model
        if (!empty($input['order_by'])) {
          $query->orderBy($input['order_by'], $input['direction'] ?? 'asc');
        }
-       return $query->with('user:id,name')->paginate($per_page);
+       return $query->with(['user:id,name', 'category:id,name'])->paginate($per_page);
     }
 
-    final public function storeCategory($input)
+    final public function storeSubCategory($input)
     {
        return self::query()->create($input);
     }
@@ -47,9 +48,10 @@ class Category extends Model
        return $this->belongsTo(User::class);
     }
 
-    public function getCategoryIdAndName()
+    public function category()
     {
-       return self::query()->select('id', 'name')->get();
+       return $this->belongsTo(Category::class);
     }
+
 
 }
