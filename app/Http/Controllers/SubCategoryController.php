@@ -12,6 +12,7 @@ use App\Manager\ImageUploadManager;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreSubCategoryRequest;
 use App\Http\Requests\UpdateSubCategoryRequest;
+use App\Http\Resources\SubCategoryEditResourse;
 use App\Http\Resources\SubCategoryListResource;
 
 class SubCategoryController extends BaseController
@@ -59,12 +60,37 @@ class SubCategoryController extends BaseController
 
     public function show(SubCategory $subCategory)
     {
-        //
+        try {
+
+             return new SubCategoryEditResourse($subCategory);
+
+         } catch (Exception $exception) {
+             Log::error($exception->getMessage());
+
+             return $this->sendError(__("common.commonError"));
+         }
     }
 
     public function update(UpdateSubCategoryRequest $request, SubCategory $subCategory)
     {
-        //
+        try {
+            DB::beginTransaction();
+
+            $subCategory_data            = $request->except('photo');
+            $subCategory_data['slug']    = Str::slug($request->input('slug'));
+            if ($request->has('photo')) {
+                $subCategory_data['photo'] = $this->processImageUpload($request->input('photo'), $subCategory_data['slug'], $subCategory->photo);
+            }
+
+            $subCategory->update($subCategory_data);
+
+            DB::commit();
+            return $this->sendResponse("Sub Category Updated Successfully", "success");
+        } catch (Exception $exception) {
+            DB::rollback();
+            Log::error($exception->getMessage());
+            return $this->sendError(__("common.commonError"));
+        }
     }
 
     public function destroy(SubCategory $subCategory)
